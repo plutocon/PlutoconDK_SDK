@@ -35,7 +35,7 @@ sensorManager.startMonitoring(SensorManager.MONITORING_BACKGROUND);
 // Stop Monitoring
 sensorManager.stopMonitoring();
 
-// Disconnect to manager service.
+// Disconnect from manager service.
 sensorManager.close();
 ```
 
@@ -65,7 +65,7 @@ sensorConnection.getHardwareVersion();
 sensorConnection.getSoftwareVersion();
 sensorConnection.getUUID();
 
-// Disconnect to sensor
+// Disconnect from sensor
 sensorConnection.disconnect();
 ````
 ### Quick start for edit sensor property
