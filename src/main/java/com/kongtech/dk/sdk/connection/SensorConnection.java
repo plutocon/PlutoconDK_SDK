@@ -204,7 +204,7 @@ public class SensorConnection {
         return sensorReader = new SensorReader(bluetoothGatt);
     }
 
-    public void setNotifySensorData(boolean enabled, SensorDataReceiver sensorDataReceiver) {
+    public void setNotifySensorData(final boolean enabled, SensorDataReceiver sensorDataReceiver) {
         final BluetoothGattCharacteristic characteristic = characteristics.get(sensor.getNotificationUUID());
         if (characteristic != null) {
 
@@ -213,10 +213,10 @@ public class SensorConnection {
             SensorOperation oper = new SensorOperation() {
                 @Override
                 public void execute(BluetoothGatt bluetoothGatt) {
-                    bluetoothGatt.setCharacteristicNotification(characteristic, true);
+                    bluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
                     BluetoothGattDescriptor descriptor = characteristic.getDescriptors().get(0);
-                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                    descriptor.setValue(enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[] { 0x00, 0x00 });
                     bluetoothGatt.writeDescriptor(descriptor);
 
                 }
@@ -261,6 +261,8 @@ public class SensorConnection {
                 .getProperty(DKUUID.BATTERY_CHARACTERISTIC)
                 .getProperty(DKUUID.SOFTWARE_VERSION_CHARACTERISTIC)
                 .getProperty(DKUUID.HARDWARE_VERSION_CHARACTERISTIC)
+                .getProperty(DKUUID.MODEL_NUMBER_CHARACTERISTIC)
+                .getProperty(DKUUID.MANUFACTURE_NAME_CHARACTERISTIC)
                 .setOnReadCompleteCallback(onReadCompleteCallback);
         if(type == Sensor.TYPE_BEACON) {
             reader.getProperty(DKUUID.UUID_CHARACTERISTIC);
@@ -302,6 +304,14 @@ public class SensorConnection {
 
     public String getHardwareVersion() {
         return new String(characteristics.get(DKUUID.HARDWARE_VERSION_CHARACTERISTIC).getValue());
+    }
+
+    public String getModelNumber() {
+        return new String(characteristics.get(DKUUID.MODEL_NUMBER_CHARACTERISTIC).getValue());
+    }
+
+    public String getManufactureName(){
+        return new String(characteristics.get(DKUUID.MANUFACTURE_NAME_CHARACTERISTIC).getValue());
     }
 
     public boolean isConnected() {

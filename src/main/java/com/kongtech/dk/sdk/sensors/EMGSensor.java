@@ -56,7 +56,7 @@ public class EMGSensor extends Sensor{
         dest.writeInt(this.value);
     }
 
-    public float adcToVoltage(int adcValue){
+    public static float adcToVoltage(int adcValue){
         return (float)adcValue / 1024f * 3.3f;
     }
 
