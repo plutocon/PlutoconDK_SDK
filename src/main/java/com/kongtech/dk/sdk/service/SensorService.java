@@ -1,9 +1,9 @@
 package com.kongtech.dk.sdk.service;
 
 import android.app.Service;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -12,16 +12,23 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
+import com.kongtech.dk.sdk.repackaged.ScanRecord;
 import com.kongtech.dk.sdk.sensors.Sensor;
+import com.kongtech.dk.sdk.service.scanner.LollipopScanner;
+import com.kongtech.dk.sdk.service.scanner.OldScanner;
+import com.kongtech.dk.sdk.service.scanner.SensorScanner;
 import com.kongtech.dk.sdk.utils.Plog;
-
+import com.kongtech.dk.sdk.service.scanner.SensorScanner.ScannerCallback;
 import java.util.List;
+
 
 public class SensorService extends Service {
 
     private RequestHandler requestHandler = null;
     private Messenger messengerService = null;
     private SensorScanner sensorScanner;
+
+    private LollipopScanner lollipopScanner;
 
     private Messenger responseMessenger;
 
@@ -39,7 +46,11 @@ public class SensorService extends Service {
         requestHandler = new RequestHandler(thread.getLooper());
         messengerService = new Messenger(requestHandler);
 
-        sensorScanner = new SensorScanner(this.getApplicationContext(), SensorScanner.SCAN_FOREGROUND);
+        if(Build.VERSION.SDK_INT >= 21) {
+            this.sensorScanner = new LollipopScanner(this.getApplicationContext(), LollipopScanner.SCAN_FOREGROUND, createScannerCallback());
+        }
+        else
+            this.sensorScanner = new OldScanner(this.getApplicationContext(), createScannerCallback());
     }
 
     private void sendScanResult(Sensor sensor){
@@ -79,38 +90,35 @@ public class SensorService extends Service {
 
             switch (msg.what) {
                 case MessageUtil.REQUEST_SCAN_START:
-                    sensorScanner.start(scanCallback);
+                    sensorScanner.start();
                     break;
                 case MessageUtil.REQUEST_SCAN_STOP:
                     sensorScanner.stop();
                     break;
                 case MessageUtil.REQUEST_MODE_BACKGROUND:
-                    sensorScanner.setScanMode(SensorScanner.SCAN_BACKGROUND);
+                    if(Build.VERSION.SDK_INT >= 21)
+                        ((LollipopScanner)sensorScanner).setScanMode(LollipopScanner.SCAN_BACKGROUND);
+                    else
+                        Plog.d("This function is only supported in later versions lollipop ");
                     break;
                 case MessageUtil.REQUEST_MODE_FOREGROUND:
-                    sensorScanner.setScanMode(SensorScanner.SCAN_FOREGROUND);
+                    if(Build.VERSION.SDK_INT >= 21)
+                        ((LollipopScanner)sensorScanner).setScanMode(LollipopScanner.SCAN_FOREGROUND);
+                    else
+                        Plog.d("This function is only supported in later versions lollipop ");
                     break;
             }
         }
     }
 
-    private ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            Plog.i("ScanResult: " + result.toString());
-
-            Sensor sensor = Sensor.createFromScanResult(result);
-            if(sensor != null) SensorService.this.sendScanResult(sensor);
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            Plog.i("ScanResults: " + results.toString());
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            Plog.e("ScanError: " + errorCode);
-        }
-    };
+    private ScannerCallback createScannerCallback() {
+        return new ScannerCallback() {
+            @Override
+            public void onLeScan(BluetoothDevice device, int rssi, ScanRecord scanRecord) {
+                Plog.i("ScanResult: " + scanRecord.toString());
+                Sensor sensor = Sensor.createFromScanResult(device, scanRecord, rssi);
+                if(sensor != null) SensorService.this.sendScanResult(sensor);
+            }
+        };
+    }
 }

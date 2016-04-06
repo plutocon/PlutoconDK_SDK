@@ -5,7 +5,7 @@ import android.os.ParcelUuid;
 import android.os.Parcelable;
 
 import com.kongtech.dk.sdk.sensors.receiver.SensorDataReceiver;
-import com.kongtech.dk.sdk.utils.PlutoconDKUUID;
+import com.kongtech.dk.sdk.utils.DKUUID;
 
 import java.util.Arrays;
 
@@ -31,6 +31,7 @@ public class AccelerationSensor extends Sensor {
 
     @Override
     public void update(byte[] manufacturerSpecificData) {
+        super.update(manufacturerSpecificData);
         if (manufacturerSpecificData == null) return;
 
         byte[] bytes = Arrays.copyOfRange(manufacturerSpecificData, 18, 23);
@@ -42,23 +43,8 @@ public class AccelerationSensor extends Sensor {
     }
 
     @Override
-    public String getMajorString() {
-        return "X";
-    }
-
-    @Override
-    public String getMinorString() {
-        return "Y, Z";
-    }
-
-    @Override
-    public String getUuidString() {
-        return "acc uuid";
-    }
-
-    @Override
     public ParcelUuid getNotificationUUID() {
-        return PlutoconDKUUID.SENSOR_CHARACTERISTIC;
+        return DKUUID.SENSOR_CHARACTERISTIC;
     }
 
     @Override
@@ -105,6 +91,7 @@ public class AccelerationSensor extends Sensor {
         this.accelerationZ = source.readInt();
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flag) {
         super.writeToParcel(dest, flag);
         dest.writeInt(accelerationX);

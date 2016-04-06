@@ -5,7 +5,7 @@ import android.os.ParcelUuid;
 import android.os.Parcelable;
 
 import com.kongtech.dk.sdk.sensors.receiver.SensorDataReceiver;
-import com.kongtech.dk.sdk.utils.PlutoconDKUUID;
+import com.kongtech.dk.sdk.utils.DKUUID;
 
 import java.util.Arrays;
 
@@ -29,29 +29,15 @@ public class EMGSensor extends Sensor{
 
     @Override
     public void update(byte[] manufacturerSpecificData) {
+        super.update(manufacturerSpecificData);
         if(manufacturerSpecificData == null) return;
         byte[] valueBytes = Arrays.copyOfRange(manufacturerSpecificData, 20, 22);
         this.value = ((valueBytes[0] & 0xff) << 8) | (valueBytes[1] & 0xff);
     }
 
     @Override
-    public String getMajorString() {
-        return null;
-    }
-
-    @Override
-    public String getMinorString() {
-        return "EMG 값";
-    }
-
-    @Override
-    public String getUuidString() {
-        return "EMG UUID";
-    }
-
-    @Override
     public ParcelUuid getNotificationUUID() {
-        return PlutoconDKUUID.SENSOR_CHARACTERISTIC;
+        return DKUUID.SENSOR_CHARACTERISTIC;
     }
 
     @Override

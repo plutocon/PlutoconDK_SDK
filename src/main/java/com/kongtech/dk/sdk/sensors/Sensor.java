@@ -1,14 +1,17 @@
 package com.kongtech.dk.sdk.sensors;
 
-import android.bluetooth.le.ScanResult;
+import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
 
+import com.kongtech.dk.sdk.repackaged.ScanRecord;
 import com.kongtech.dk.sdk.sensors.receiver.SensorDataReceiver;
-import com.kongtech.dk.sdk.utils.PlutoconDKUUID;
+import com.kongtech.dk.sdk.utils.DKUUID;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.UUID;
 
 public abstract class Sensor implements Parcelable, Comparable<Sensor> {
 
@@ -24,6 +27,7 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
 
     private String name;
     private String macAddress;
+    private ParcelUuid uuid;
     private int rssi;
     private long lastSeenMillis;
 
@@ -34,75 +38,18 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
 
     public abstract int getType();
 
-    public abstract void update(byte[] manufacturerSpecificData);
-
-    public abstract String getMajorString();
-
-    public abstract String getMinorString();
-
-    public abstract String getUuidString();
-
     public abstract ParcelUuid getNotificationUUID();
 
     public abstract void dataReceiveCallback(byte[] data, SensorDataReceiver sensorDataReceiver);
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(getType());
-        dest.writeString(name);
-        dest.writeString(macAddress);
-        dest.writeInt(rssi);
-        dest.writeLong(lastSeenMillis);
-        dest.writeInt(interval);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Parcelable.Creator<Sensor> CREATOR = new Creator<Sensor>() {
-        @Override
-        public Sensor createFromParcel(Parcel source) {
-            int type = source.readInt();
-            String name = source.readString();
-            String address = source.readString();
-            int rssi = source.readInt();
-            long lastSeenMillis = source.readLong();
-            int interval = source.readInt();
-            Sensor sensor = null;
-
-            switch (type) {
-                case TYPE_ACC:
-                    sensor = new AccelerationSensor(name, address, rssi, lastSeenMillis, null);
-                    break;
-                case TYPE_BEACON:
-                    sensor = new Beacon(name, address, rssi, lastSeenMillis, null);
-                    break;
-                case TYPE_EMG:
-                    sensor = new EMGSensor(name, address, rssi, lastSeenMillis, null);
-                    break;
-                case TYPE_TEMP:
-                    sensor = new TemperatureHumiditySensor(name, address, rssi, lastSeenMillis, null);
-                    break;
-            }
-            sensor.setInterval(interval);
-            return sensor;
-        }
-
-        @Override
-        public Sensor[] newArray(int size) {
-            return new Sensor[size];
-        }
-    };
 
     public Sensor(String name, String macAddress, int rssi, long lastSeenMillis, byte[] manufacturerSpecificData) {
         this.name = name;
         this.macAddress = macAddress;
         this.rssi = rssi;
         this.lastSeenMillis = lastSeenMillis;
-        this.update(manufacturerSpecificData);
         this.interval = 0;
+        this.uuid = null;
+        this.update(manufacturerSpecificData);
     }
 
     protected Sensor(Parcel source) {
@@ -112,6 +59,7 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
         this.rssi = source.readInt();
         this.lastSeenMillis = source.readLong();
         this.interval = source.readInt();
+        this.uuid = source.readParcelable(ParcelUuid.class.getClassLoader());
     }
 
     public String getName() {
@@ -122,7 +70,7 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
         this.name = sensorName;
     }
 
-    public int getRssi() {
+    public int getRSSI() {
         return rssi;
     }
 
@@ -142,6 +90,91 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
         this.interval = interval;
     }
 
+    public ParcelUuid getUUID() {
+        return uuid;
+    }
+
+    public void setUUID(ParcelUuid UUID) {
+        this.uuid = UUID;
+    }
+
+    public boolean isSelect() {
+        return isSelect;
+    }
+
+    public void select(boolean select) {
+        this.isSelect = select;
+    }
+
+    public void update(byte[] manufacturerSpecificData) {
+        if (manufacturerSpecificData == null) return;
+
+        byte[] uuidBytes = Arrays.copyOfRange(manufacturerSpecificData, 2, 18);
+        ByteBuffer proximityUUIDBuffer = ByteBuffer.wrap(uuidBytes);
+
+        this.uuid = new ParcelUuid(new UUID(proximityUUIDBuffer.getLong(), proximityUUIDBuffer.getLong()));
+    }
+
+    private static int getCategoryFromData(byte[] serviceData) {
+        return serviceData[1];
+    }
+
+    private static int getTypeFromData(byte[] serviceData) {
+        return serviceData[0];
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(getType());
+        dest.writeString(name);
+        dest.writeString(macAddress);
+        dest.writeInt(rssi);
+        dest.writeLong(lastSeenMillis);
+        dest.writeInt(interval);
+        dest.writeParcelable(uuid, flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Parcelable.Creator<Sensor> CREATOR = new Creator<Sensor>() {
+        @Override
+        public Sensor createFromParcel(Parcel source) {
+            int type = source.readInt();
+            String name = source.readString();
+            String address = source.readString();
+            int rssi = source.readInt();
+            long lastSeenMillis = source.readLong();
+            int interval = source.readInt();
+            ParcelUuid uuid = source.readParcelable(ParcelUuid.class.getClassLoader());
+            Sensor sensor = null;
+
+            switch (type) {
+                case TYPE_ACC:
+                    sensor = new AccelerationSensor(name, address, rssi, lastSeenMillis, null);
+                    break;
+                case TYPE_BEACON:
+                    sensor = new Beacon(name, address, rssi, lastSeenMillis, null);
+                    break;
+                case TYPE_EMG:
+                    sensor = new EMGSensor(name, address, rssi, lastSeenMillis, null);
+                    break;
+                case TYPE_TEMP:
+                    sensor = new TemperatureHumiditySensor(name, address, rssi, lastSeenMillis, null);
+                    break;
+            }
+            sensor.setInterval(interval);
+            sensor.setUUID(uuid);
+            return sensor;
+        }
+
+        @Override
+        public Sensor[] newArray(int size) {
+            return new Sensor[size];
+        }
+    };
 
     @Override
     public int hashCode() {
@@ -161,21 +194,21 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
 
     @Override
     public int compareTo(Sensor another) {
-        return Boolean.compare(another.isSelect(), this.isSelect());
+        return another.isSelect() == this.isSelect() ? 0 : another.isSelect() ? 1 : -1;
     }
 
-    public static Sensor createFromScanResult(ScanResult scanResult) {
-        byte[] serviceData = scanResult.getScanRecord().getServiceData(PlutoconDKUUID.SERVICE_DATA_UUID);
-        byte[] manufacturerSpecificData = scanResult.getScanRecord().getManufacturerSpecificData(76);
+    public static Sensor createFromScanResult(BluetoothDevice device, ScanRecord scanRecord, int rssi) {
+        byte[] serviceData = scanRecord.getServiceData(DKUUID.SERVICE_DATA_UUID);
+        byte[] manufacturerSpecificData = scanRecord.getManufacturerSpecificData(76);
 
-        if (serviceData != null && manufacturerSpecificData != null) {
+        if (serviceData != null && manufacturerSpecificData != null
+                && serviceData.length == 11) {
             int type = Sensor.getTypeFromData(serviceData);
             if (type != 2) return null;
 
-            String name = scanResult.getDevice().getName();
-            String address = scanResult.getDevice().getAddress();
+            String name = device.getName();
+            String address = device.getAddress();
 
-            int rssi = scanResult.getRssi();
             long lastSeenMillis = System.currentTimeMillis();
 
             int category = Sensor.getCategoryFromData(serviceData);
@@ -192,22 +225,6 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
             }
         }
         return null;
-    }
-
-    private static int getCategoryFromData(byte[] serviceData) {
-        return serviceData[1];
-    }
-
-    private static int getTypeFromData(byte[] serviceData) {
-        return serviceData[0];
-    }
-
-    public boolean isSelect() {
-        return isSelect;
-    }
-
-    public void select(boolean select) {
-        this.isSelect = select;
     }
 }
 

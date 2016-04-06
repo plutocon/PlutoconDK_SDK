@@ -13,8 +13,8 @@ import android.os.ParcelUuid;
 
 import com.kongtech.dk.sdk.sensors.Sensor;
 import com.kongtech.dk.sdk.sensors.receiver.SensorDataReceiver;
+import com.kongtech.dk.sdk.utils.DKUUID;
 import com.kongtech.dk.sdk.utils.Plog;
-import com.kongtech.dk.sdk.utils.PlutoconDKUUID;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -46,6 +46,8 @@ public class SensorConnection {
 
     private ConcurrentLinkedQueue<SensorOperation> notifyQueue;
     private boolean isWritingDescriptor;
+
+    private boolean isConnected = false;
 
     public SensorConnection(Context context, Sensor sensor) {
         this.context = context;
@@ -83,6 +85,8 @@ public class SensorConnection {
             @Override
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
                 super.onServicesDiscovered(gatt, status);
+                if(status == BluetoothGatt.GATT_SUCCESS) isConnected = true;
+                else isConnected = false;
                 if (SensorConnection.this.onConnectionStateChangeListener != null) {
                     if (status == BluetoothGatt.GATT_SUCCESS) {
                         Plog.d("GATT Service discovered");
@@ -102,6 +106,8 @@ public class SensorConnection {
 
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                if(status == BluetoothGatt.STATE_CONNECTED) isConnected = true;
+                else if(status == BluetoothGatt.STATE_DISCONNECTED) isConnected = false;
                 if (SensorConnection.this.onConnectionStateChangeListener != null) {
                     if (newState == BluetoothGatt.STATE_CONNECTED) {
                         Plog.d("Connected to GATT server.");
@@ -127,7 +133,7 @@ public class SensorConnection {
                 super.onCharacteristicRead(gatt, characteristic, status);
                 if (sensorReader != null && !sensorReader.executeNext()) {
                     sensorReader.onReadComplete();
-                    sensorEditor = null;
+                    sensorReader = null;
                 }
             }
 
@@ -146,7 +152,7 @@ public class SensorConnection {
             @Override
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
                 super.onCharacteristicChanged(gatt, characteristic);
-                if (characteristic.getUuid().compareTo(PlutoconDKUUID.BATTERY_CHARACTERISTIC.getUuid()) == 0) {
+                if (characteristic.getUuid().compareTo(DKUUID.BATTERY_CHARACTERISTIC.getUuid()) == 0) {
                     if (onBatteryInfoCallback != null) {
                         byte[] data = characteristic.getValue();
                         int value = (data[0] << 8) | data[1];
@@ -177,16 +183,13 @@ public class SensorConnection {
     }
 
     private void notifyDisconnected() {
+        isConnected = false;
         if (this.bluetoothGatt != null) {
             this.bluetoothGatt.close();
             characteristics = null;
             if (onConnectionStateChangeListener != null)
                 onConnectionStateChangeListener.onConnectionStateDisconnected();
         }
-    }
-
-    public void setSensorDataReceiver(SensorDataReceiver sensorDataReceiver) {
-        this.sensorDataReceiver = sensorDataReceiver;
     }
 
     public void setOnConnectionRemoteRssiCallback(OnConnectionRemoteRssiCallback onConnectionRemoteRssiCallback) {
@@ -227,7 +230,7 @@ public class SensorConnection {
     }
 
     /*public void setNotifyBatteryInfo(boolean enabled, OnBatteryInfoCallback onBatteryInfoCallback) {
-        final BluetoothGattCharacteristic characteristic = characteristics.get(PlutoconDKUUID.BATTERY_CHARACTERISTIC);
+        final BluetoothGattCharacteristic characteristic = characteristics.get(DKUUID.BATTERY_CHARACTERISTIC);
         if (characteristic != null) {
 
             this.onBatteryInfoCallback = onBatteryInfoCallback;
@@ -253,19 +256,20 @@ public class SensorConnection {
     private void readDefaultProperty(SensorReader.OnReadCompleteCallback onReadCompleteCallback) {
         SensorReader reader = this.getSensorReader();
 
-        reader.getProperty(PlutoconDKUUID.ADV_INTERVAL_CHARACTERISTIC)
-                .getProperty(PlutoconDKUUID.TX_LEVEL_CHARACTERISTIC)
-                .getProperty(PlutoconDKUUID.BATTERY_CHARACTERISTIC)
-                .getProperty(PlutoconDKUUID.SOFTWARE_VERSION_CHARACTERISTIC)
+        reader.getProperty(DKUUID.ADV_INTERVAL_CHARACTERISTIC)
+                .getProperty(DKUUID.TX_LEVEL_CHARACTERISTIC)
+                .getProperty(DKUUID.BATTERY_CHARACTERISTIC)
+                .getProperty(DKUUID.SOFTWARE_VERSION_CHARACTERISTIC)
+                .getProperty(DKUUID.HARDWARE_VERSION_CHARACTERISTIC)
                 .setOnReadCompleteCallback(onReadCompleteCallback);
         if(type == Sensor.TYPE_BEACON) {
-            reader.getProperty(PlutoconDKUUID.UUID_CHARACTERISTIC);
+            reader.getProperty(DKUUID.UUID_CHARACTERISTIC);
         }
         reader.commit();
     }
 
     public ParcelUuid getUUID(){
-        byte[] data = characteristics.get(PlutoconDKUUID.UUID_CHARACTERISTIC).getValue();
+        byte[] data = characteristics.get(DKUUID.UUID_CHARACTERISTIC).getValue();
         ByteBuffer bb = ByteBuffer.wrap(data);
         long high = bb.getLong();
         long low = bb.getLong();
@@ -273,17 +277,17 @@ public class SensorConnection {
     }
 
     public int getAdvertisingInterval() {
-        byte[] data = characteristics.get(PlutoconDKUUID.ADV_INTERVAL_CHARACTERISTIC).getValue();
+        byte[] data = characteristics.get(DKUUID.ADV_INTERVAL_CHARACTERISTIC).getValue();
         return (((int) data[0]) << 8) | ((int) data[1] & 0xFF);
     }
 
-    public int getTxPower() {
-        byte[] data = characteristics.get(PlutoconDKUUID.TX_LEVEL_CHARACTERISTIC).getValue();
+    public int getBroadcastingPower() {
+        byte[] data = characteristics.get(DKUUID.TX_LEVEL_CHARACTERISTIC).getValue();
         return (short)(((int) data[0]) << 8) | ((int) data[1] & 0xFF);
     }
 
     public int getBatteryVoltage() {
-        byte[] data = characteristics.get(PlutoconDKUUID.BATTERY_CHARACTERISTIC).getValue();
+        byte[] data = characteristics.get(DKUUID.BATTERY_CHARACTERISTIC).getValue();
         return (short)(((int) data[0]) << 8) | ((int) data[1] & 0xFF);
     }
 
@@ -293,7 +297,15 @@ public class SensorConnection {
     }
 
     public String getSoftwareVersion() {
-        return new String(characteristics.get(PlutoconDKUUID.SOFTWARE_VERSION_CHARACTERISTIC).getValue());
+        return new String(characteristics.get(DKUUID.SOFTWARE_VERSION_CHARACTERISTIC).getValue());
+    }
+
+    public String getHardwareVersion() {
+        return new String(characteristics.get(DKUUID.HARDWARE_VERSION_CHARACTERISTIC).getValue());
+    }
+
+    public boolean isConnected() {
+        return isConnected;
     }
 
     public interface OnConnectionRemoteRssiCallback {

@@ -5,7 +5,7 @@ import android.os.ParcelUuid;
 import android.os.Parcelable;
 
 import com.kongtech.dk.sdk.sensors.receiver.SensorDataReceiver;
-import com.kongtech.dk.sdk.utils.PlutoconDKUUID;
+import com.kongtech.dk.sdk.utils.DKUUID;
 
 import java.util.Arrays;
 
@@ -37,6 +37,7 @@ public class TemperatureHumiditySensor extends Sensor {
 
     @Override
     public void update(byte[] manufacturerSpecificData) {
+        super.update(manufacturerSpecificData);
         if(manufacturerSpecificData == null) return;
         byte[] humidityBytes = Arrays.copyOfRange(manufacturerSpecificData, 20, 22);
         byte[] temperatureBytes = Arrays.copyOfRange(manufacturerSpecificData, 18, 20);
@@ -48,23 +49,8 @@ public class TemperatureHumiditySensor extends Sensor {
     }
 
     @Override
-    public String getMajorString() {
-        return "온도";
-    }
-
-    @Override
-    public String getMinorString() {
-        return "습도";
-    }
-
-    @Override
-    public String getUuidString() {
-        return "온습 uuid";
-    }
-
-    @Override
     public ParcelUuid getNotificationUUID() {
-        return PlutoconDKUUID.SENSOR_CHARACTERISTIC;
+        return DKUUID.SENSOR_CHARACTERISTIC;
     }
 
     @Override

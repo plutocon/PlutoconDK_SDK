@@ -14,7 +14,7 @@ import android.os.RemoteException;
 
 import com.kongtech.dk.sdk.sensors.Sensor;
 import com.kongtech.dk.sdk.service.MessageUtil;
-import com.kongtech.dk.sdk.service.SensorScanner;
+import com.kongtech.dk.sdk.service.scanner.LollipopScanner;
 import com.kongtech.dk.sdk.service.SensorService;
 import com.kongtech.dk.sdk.utils.Plog;
 
@@ -22,8 +22,8 @@ import java.util.List;
 
 public class SensorManager {
 
-    public final static int MONITORING_BACKGROUND = SensorScanner.SCAN_BACKGROUND;
-    public final static int MONITORING_FOREGROUND = SensorScanner.SCAN_FOREGROUND;
+    public final static int MONITORING_BACKGROUND = LollipopScanner.SCAN_BACKGROUND;
+    public final static int MONITORING_FOREGROUND = LollipopScanner.SCAN_FOREGROUND;
     private Context context;
 
     private SensorManager.SensorServiceConnection serviceConnection;
@@ -51,7 +51,7 @@ public class SensorManager {
         this.monitoringResult = new MonitoringResult();
     }
 
-    public void destroy() {
+    public void close() {
         if (this.isServiceConnected()) {
             this.stopMonitoring();
             context.unbindService(this.serviceConnection);
@@ -65,7 +65,7 @@ public class SensorManager {
         monitoringResult.clear();
         scanStartMsg.replyTo = responseMessenger;
 
-        if (mode == SensorScanner.SCAN_FOREGROUND)
+        if (mode == LollipopScanner.SCAN_FOREGROUND)
             scanModeMsg = Message.obtain(null, MessageUtil.REQUEST_MODE_FOREGROUND);
         else scanModeMsg = Message.obtain(null, MessageUtil.REQUEST_MODE_BACKGROUND);
 
@@ -95,7 +95,7 @@ public class SensorManager {
 
     public boolean connectService(OnReadyServiceListener onReadyService) {
         if (isServiceConnected()) {
-            onReadyService.onReady();
+            if(onReadyService != null) onReadyService.onReady();
             return true;
         }
         this.onReadyService = onReadyService;

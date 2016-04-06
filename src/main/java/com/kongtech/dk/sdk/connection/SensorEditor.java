@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.ParcelUuid;
 
-import com.kongtech.dk.sdk.utils.PlutoconDKUUID;
+import com.kongtech.dk.sdk.utils.DKUUID;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class SensorEditor {
     }
 
     public SensorEditor setUUID(ParcelUuid uuid){
-        BluetoothGattCharacteristic characteristic = characteristics.get(PlutoconDKUUID.UUID_CHARACTERISTIC);
+        BluetoothGattCharacteristic characteristic = characteristics.get(DKUUID.UUID_CHARACTERISTIC);
         if(characteristic == null) return this;
 
         ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
@@ -81,7 +81,7 @@ public class SensorEditor {
         if(editList.size() > 0 ){
             BluetoothGattCharacteristic characteristic = editList.get(0);
             editList.remove(0);
-            sensorGatt.writeCharacteristic(characteristic);
+            boolean test = sensorGatt.writeCharacteristic(characteristic);
             return true;
         }
         return false;
