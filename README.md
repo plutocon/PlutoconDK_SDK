@@ -19,6 +19,7 @@ dependencies {
 The following permissions are included in the sdk
   - 'android.permission.BLUETOOTH'
   - 'android.permission.BLUETOOTH_ADMIN'
+
 ### Android 6.0 runtime permissions
   - If running on Android 6.0 or later, Location Services must be turned on.
   - If running on Android 6.0 or later and your app is targeting SDK < 23 (M), any location permission (`ACCESS_COARSE_LOCATION` or `ACCESS_FINE_LOCATION`) must be granted for <b>background</b> beacon detection.
