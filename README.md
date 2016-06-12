@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-	compile 'com.kongtech.dk.sdk:plutocondk_sdk:1.0.2'
+	compile 'com.kongtech.dk.sdk:plutocondk_sdk:1.1.0'
 }
 ```
 
@@ -39,16 +39,14 @@ sensorManager.connectService(new SensorManager.OnReadyServiceListener() {
 	} 
 });
 
-// Registration Listener
-sensorManager.setOnMonitoringSensorListener(new SensorManager.OnMonitoringSensorListener() {
+
+// Start monitoring foreground with listener
+sensorManager.startMonitoring(SensorManager.MONITORING_FOREGROUND, new SensorManager.OnMonitoringSensorListener() {
 	@Override 
 	public void onSensorDiscovered(Sensor sensor, List<Sensor> sensors) {
 		//do somethings
 	}
 });
-
-// Start monitoring foreground
-sensorManager.startMonitoring(SensorManager.MONITORING_FOREGROUND);
 
 // Start monitoring background
 sensorManager.startMonitoring(SensorManager.MONITORING_BACKGROUND);
