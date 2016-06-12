@@ -28,8 +28,6 @@ public class SensorService extends Service {
     private Messenger messengerService = null;
     private SensorScanner sensorScanner;
 
-    private LollipopScanner lollipopScanner;
-
     private Messenger responseMessenger;
 
     public SensorService() {

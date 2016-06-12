@@ -8,7 +8,7 @@ public interface SensorScanner {
     void start();
     void stop();
 
-    public interface ScannerCallback {
+    interface ScannerCallback {
         void onLeScan(BluetoothDevice device, int rssi, ScanRecord scanRecord);
     }
 }

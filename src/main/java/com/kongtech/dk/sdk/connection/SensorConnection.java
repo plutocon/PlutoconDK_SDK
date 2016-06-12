@@ -106,8 +106,8 @@ public class SensorConnection {
 
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                if(status == BluetoothGatt.STATE_CONNECTED) isConnected = true;
-                else if(status == BluetoothGatt.STATE_DISCONNECTED) isConnected = false;
+                if(status == BluetoothGatt.GATT_SUCCESS) isConnected = true;
+                else if(status == BluetoothGatt.GATT_FAILURE) isConnected = false;
                 if (SensorConnection.this.onConnectionStateChangeListener != null) {
                     if (newState == BluetoothGatt.STATE_CONNECTED) {
                         Plog.d("Connected to GATT server.");

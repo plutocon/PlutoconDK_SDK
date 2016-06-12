@@ -19,11 +19,17 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
     public static final int TYPE_ACC = 1;
     public static final int TYPE_EMG = 2;
     public static final int TYPE_TEMP = 3;
+    public static final int TYPE_MIC = 4;
+    public static final int TYPE_TOUCH = 5;
+    public static final int TYPE_HID = 6;
 
     public static final String TYPE_STRING_TEMP = "DK_TEMP";
     public static final String TYPE_STRING_ACC = "DK_ACC";
     public static final String TYPE_STRING_BEACON = "DK_BEACON";
     public static final String TYPE_STRING_EMG = "DK_EMG";
+    public static final String TYPE_STRING_MIC = "DK_MIC";
+    public static final String TYPE_STRING_TOUCH = "DK_TOUCH";
+    public static final String TYPE_STRING_HID = "DK_HID";
 
     private String name;
     private String macAddress;
@@ -164,6 +170,15 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
                 case TYPE_TEMP:
                     sensor = new TemperatureHumiditySensor(name, address, rssi, lastSeenMillis, null);
                     break;
+                case TYPE_MIC:
+                    sensor = new Microphone(name, address, rssi, lastSeenMillis, null);
+                    break;
+                case TYPE_TOUCH:
+                    sensor = new TouchSensor(name, address, rssi, lastSeenMillis, null);
+                    break;
+                case TYPE_HID:
+                    sensor = new HID(name, address, rssi, lastSeenMillis, null);
+                    break;
             }
             sensor.setInterval(interval);
             sensor.setUUID(uuid);
@@ -222,6 +237,12 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
                     return new EMGSensor(name, address, rssi, lastSeenMillis, manufacturerSpecificData);
                 case Sensor.TYPE_TEMP:
                     return new TemperatureHumiditySensor(name, address, rssi, lastSeenMillis, manufacturerSpecificData);
+                case Sensor.TYPE_MIC:
+                    return new Microphone(name, address, rssi, lastSeenMillis, manufacturerSpecificData);
+                case Sensor.TYPE_TOUCH:
+                    return new TouchSensor(name, address, rssi, lastSeenMillis, manufacturerSpecificData);
+                case Sensor.TYPE_HID:
+                    return new HID(name, address, rssi, lastSeenMillis, manufacturerSpecificData);
             }
         }
         return null;
