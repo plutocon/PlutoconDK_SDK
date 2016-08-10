@@ -39,14 +39,16 @@ sensorManager.connectService(new SensorManager.OnReadyServiceListener() {
 	} 
 });
 
-
-// Start monitoring foreground with listener
-sensorManager.startMonitoring(SensorManager.MONITORING_FOREGROUND, new SensorManager.OnMonitoringSensorListener() {
+// Set monitoring listener
+sensorManager.setOnMonitoringSensorListener(new SensorManager.OnMonitoringSensorListener() {
 	@Override 
 	public void onSensorDiscovered(Sensor sensor, List<Sensor> sensors) {
 		//do somethings
 	}
 });
+
+// Start monitoring foreground with listener
+sensorManager.startMonitoring(SensorManager.MONITORING_FOREGROUND);
 
 // Start monitoring background
 sensorManager.startMonitoring(SensorManager.MONITORING_BACKGROUND);

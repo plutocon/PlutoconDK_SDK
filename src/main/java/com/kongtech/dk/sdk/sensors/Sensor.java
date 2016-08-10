@@ -31,6 +31,7 @@ public abstract class Sensor implements Parcelable, Comparable<Sensor> {
     public static final String TYPE_STRING_TOUCH = "DK_TOUCH";
     public static final String TYPE_STRING_HID = "DK_HID";
 
+
     private String name;
     private String macAddress;
     private ParcelUuid uuid;

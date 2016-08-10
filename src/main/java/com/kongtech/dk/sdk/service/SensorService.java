@@ -113,9 +113,12 @@ public class SensorService extends Service {
         return new ScannerCallback() {
             @Override
             public void onLeScan(BluetoothDevice device, int rssi, ScanRecord scanRecord) {
-                Plog.i("ScanResult: " + scanRecord.toString());
+
                 Sensor sensor = Sensor.createFromScanResult(device, scanRecord, rssi);
-                if(sensor != null) SensorService.this.sendScanResult(sensor);
+                if(sensor != null) {
+                    Plog.i("ScanResult: " + scanRecord.toString());
+                    SensorService.this.sendScanResult(sensor);
+                }
             }
         };
     }
