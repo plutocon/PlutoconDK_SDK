@@ -86,10 +86,10 @@ plutoconDKConnection.getHardwareVersion();
 plutoconDKConnection.getSoftwareVersion();
 plutoconDKConnection.getUUID();
 
-// Turn on sensor power(Require softwareversion up to A.1.2.0)
+// Turn on sensor power(Require softwareversion A.1.2.0)
 plutoconDKConnection.setPower(true);
 
-// Turn off sensor power(Require softwareversion up to A.1.2.0)
+// Turn off sensor power(Require softwareversion A.1.2.0)
 plutoconDKConnection.setPower(false);
 
 // Disconnect from plutoconDK
