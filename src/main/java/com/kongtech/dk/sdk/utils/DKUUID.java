@@ -22,5 +22,7 @@ public class DKUUID {
 
     public static final ParcelUuid BATTERY_CHARACTERISTIC = ParcelUuid.fromString("9fd43001-e46f-7c9a-57b1-2da365e18fa1");
 
+    public static final ParcelUuid WRITE_CHARACTERISTIC = ParcelUuid.fromString("9fd45001-e46f-7c9a-57b1-2da365e18fa1");
     public static final ParcelUuid SENSOR_CHARACTERISTIC = ParcelUuid.fromString("9fd45002-e46f-7c9a-57b1-2da365e18fa1");
+    public static final ParcelUuid AT_CHARACTERISTIC = ParcelUuid.fromString("9fd45003-e46f-7c9a-57b1-2da365e18fa1");
 }

@@ -5,11 +5,10 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
 import com.kongtech.dk.sdk.repackaged.ScanRecord;
-import com.kongtech.dk.sdk.service.scanner.SensorScanner.ScannerCallback;
 import com.kongtech.dk.sdk.utils.Plog;
 
 
-public class OldScanner implements SensorScanner{
+public class OldScanner implements PlutoconDKScanner {
 
     private final BluetoothAdapter adapter;
     private final BluetoothAdapter.LeScanCallback leScanCallback;

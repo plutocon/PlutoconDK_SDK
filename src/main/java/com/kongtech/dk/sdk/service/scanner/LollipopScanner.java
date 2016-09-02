@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TargetApi(21)
-public class LollipopScanner implements SensorScanner {
+public class LollipopScanner implements PlutoconDKScanner {
 
     public static final int SCAN_FOREGROUND = ScanSettings.SCAN_MODE_LOW_LATENCY;
     public static final int SCAN_BACKGROUND = ScanSettings.SCAN_MODE_LOW_POWER;

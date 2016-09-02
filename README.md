@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-	compile 'com.kongtech.dk.sdk:plutocondk_sdk:1.1.0'
+	compile 'com.kongtech.dk.sdk:plutocondk_sdk:1.2.1'
 }
 ```
 
@@ -26,47 +26,47 @@ The following permissions are included in the sdk
   - If running on Android 6.0 or later and your app is targeting SDK >= 23 (M), any location permission (`ACCESS_COARSE_LOCATION` or `ACCESS_FINE_LOCATION` must be granted.
 
 ## Tutorials
-### Quick start for monitoring sensors
+### Quick start for monitoring plutoconDKs
 ````java
-private SensorManager sensorManager;
+private PlutoconDKManager plutoconDKManager;
 
 // Initialization
-sensorManager = new SensorManager(context);
-sensorManager.connectService(new SensorManager.OnReadyServiceListener() {
-	@Override
-	public void onReady() {
-		//do something        
-	} 
-});
-
-// Set monitoring listener
-sensorManager.setOnMonitoringSensorListener(new SensorManager.OnMonitoringSensorListener() {
-	@Override 
-	public void onSensorDiscovered(Sensor sensor, List<Sensor> sensors) {
-		//do somethings
+plutoconDKManager = new PlutoconDKManager(context);
+plutoconDKManager.connectService(new PlutoconDKManager.OnReadyServiceListener(){
+	@Override	
+	public void onReady(){
+		//do something
 	}
 });
 
+// Set monitoring listener
+plutoconDKManager.setOnMonitoringPlutoconDKListener(new OnMonitoringPlutoconDKListener(){
+	@Override
+	public void onPlutoconDKDiscovered(PlutoconDK plutoconDK, List<PlutoconDK> plutoconDKs) {
+		//do something
+                }
+});
+
 // Start monitoring foreground with listener
-sensorManager.startMonitoring(SensorManager.MONITORING_FOREGROUND);
+plutoconDKManager.startMonitoring(PlutoconDKManager.MONITORING_FOREGROUND);
 
 // Start monitoring background
-sensorManager.startMonitoring(SensorManager.MONITORING_BACKGROUND);
+plutoconDKManager.startMonitoring(PlutoconDKManager.MONITORING_BACKGROUND);
 
 // Stop Monitoring
-sensorManager.stopMonitoring();
+plutoconDKManager.stopMonitoring();
 
 // Disconnect from manager service.
-sensorManager.close();
+plutoconDKManager.close();
 ```
 
-### Quick start for connecting sensor
+### Quick start for connecting plutoconDK
 ````java
 // Initialization
-SensorConnection sensorConnection = new SensorConnection(sensor);
+PlutoconDKConnection plutoconDKConnection = new PlutoconDKConnection(plutoconDK);
 
-// Connect to sensor
-sensorConnection.connect(new SensorConnection.OnConnectionStateChangeCallback() {
+// Connect to plutoconDK
+plutoconDKConnection.connect(new PlutoconDKConnection.OnConnectionStateChangeCallback() {
 	@Override
 	public void onConnectionStateDisconnected() {
 		//do something;
@@ -78,20 +78,26 @@ sensorConnection.connect(new SensorConnection.OnConnectionStateChangeCallback() 
 	}
 });
 
-// Read sensor property
-sensorConnection.getAdvertisingInterval();
-sensorConnection.getBatteryVoltage();
-sensorConnection.getBroadcastingPower();
-sensorConnection.getHardwareVersion();
-sensorConnection.getSoftwareVersion();
-sensorConnection.getUUID();
+// Read plutoconDK property
+plutoconDKConnection.getAdvertisingInterval();
+plutoconDKConnection.getBatteryVoltage();
+plutoconDKConnection.getBroadcastingPower();
+plutoconDKConnection.getHardwareVersion();
+plutoconDKConnection.getSoftwareVersion();
+plutoconDKConnection.getUUID();
 
-// Disconnect from sensor
-sensorConnection.disconnect();
+// Turn on sensor power(Require softwareversion up to A.1.2.0)
+plutoconDKConnection.setPower(true);
+
+// Turn off sensor power(Require softwareversion up to A.1.2.0)
+plutoconDKConnection.setPower(false);
+
+// Disconnect from plutoconDK
+plutoconDKConnection.disconnect();
 ````
-### Quick start for edit sensor property
+### Quick start for edit plutoconDK property
 ````java
-SensorEditor editor = sensorConnection.getSensorEditor();
+PlutoconDKEditor editor = plutoconDKConnection.getSensorEditor();
 editor.setProperty(DKUUID.ADV_INTERVAL_CHARACTERISTIC, interval)
       .setUUID(ParcelUuid.fromString("1f4ae6a0-0037-4020-4101-271071580001"))
       .setOnEditCompleteCallback(new SensorEditor.OnEditCompleteCallback() {

@@ -1,39 +1,39 @@
 package com.kongtech.dk.sdk;
 
-import com.kongtech.dk.sdk.sensors.Sensor;
+import com.kongtech.dk.sdk.device.PlutoconDK;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MonitoringResult {
 
-    private List<Sensor> sensors;
+    private List<PlutoconDK> plutoconDKs;
 
     public MonitoringResult(){
-        sensors = new ArrayList<>();
+        plutoconDKs = new ArrayList<>();
     }
 
-    public void updateSensor(Sensor sensor,int position){
-        Sensor s = sensors.get(position);
-        sensor.setInterval((int) (sensor.getLastSeenMillis() - s.getLastSeenMillis()));
-        sensors.set(position, sensor);
+    public void updateSensor(PlutoconDK plutoconDK, int position){
+        PlutoconDK s = plutoconDKs.get(position);
+        plutoconDK.setInterval((int) (plutoconDK.getLastSeenMillis() - s.getLastSeenMillis()));
+        plutoconDKs.set(position, plutoconDK);
     }
 
-    public void addSensor(Sensor sensor){
-        if(sensors.contains(sensor)) return;
-        sensor.setInterval(0);
-        sensors.add(sensor);
+    public void addSensor(PlutoconDK plutoconDK){
+        if(plutoconDKs.contains(plutoconDK)) return;
+        plutoconDK.setInterval(0);
+        plutoconDKs.add(plutoconDK);
     }
 
-    public int isContained(Sensor sensor){
-        return sensors.indexOf(sensor);
+    public int isContained(PlutoconDK plutoconDK){
+        return plutoconDKs.indexOf(plutoconDK);
     }
 
-    public List<Sensor> getList() {
-        return sensors;
+    public List<PlutoconDK> getList() {
+        return plutoconDKs;
     }
 
     public void clear(){
-        sensors.clear();
+        plutoconDKs.clear();
     }
 }
