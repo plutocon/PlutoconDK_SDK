@@ -1,8 +1,10 @@
-# PlutoconDK SDK#
+# PlutoconDK SDK
 
-##Installation
+## Installation
+
 ### Gradle via jCenter
 Declare in your Gradle's `build.gradle` dependency to this library.
+
 ```gradle
 repositories {
 	jcenter()
@@ -14,7 +16,8 @@ dependencies {
 ```
 
 
-##Permissions
+## Permissions
+
 ### Basic permissions
 The following permissions are included in the sdk
   - 'android.permission.BLUETOOTH'
@@ -27,6 +30,7 @@ The following permissions are included in the sdk
 
 ## Tutorials
 ### Quick start for monitoring plutoconDKs
+
 ````java
 private PlutoconDKManager plutoconDKManager;
 
@@ -58,7 +62,7 @@ plutoconDKManager.stopMonitoring();
 
 // Disconnect from manager service.
 plutoconDKManager.close();
-```
+````
 
 ### Quick start for connecting plutoconDK
 ````java
@@ -95,6 +99,7 @@ plutoconDKConnection.setPower(false);
 // Disconnect from plutoconDK
 plutoconDKConnection.disconnect();
 ````
+
 ### Quick start for edit plutoconDK property
 ````java
 PlutoconDKEditor editor = plutoconDKConnection.getSensorEditor();
