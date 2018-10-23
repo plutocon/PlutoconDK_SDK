@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-	compile 'com.kongtech.dk.sdk:plutocondk_sdk:1.2.1'
+	compile 'com.kongtech.dk.sdk:plutocondk_sdk:1.2.2'
 }
 ```
 
