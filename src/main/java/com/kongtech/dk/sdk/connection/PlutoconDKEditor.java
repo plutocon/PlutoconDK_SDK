@@ -48,6 +48,8 @@ public class PlutoconDKEditor {
     }
 
     public PlutoconDKEditor setProperty(ParcelUuid uuid, int value){
+        if(DKUUID.TX_LEVEL_CHARACTERISTIC.equals(uuid))
+            return this;
         BluetoothGattCharacteristic characteristic = characteristics.get(uuid);
 
         if(characteristic == null) return this;
@@ -64,6 +66,9 @@ public class PlutoconDKEditor {
     }
 
     public PlutoconDKEditor setProperty(ParcelUuid uuid, String value){
+        if(DKUUID.TX_LEVEL_CHARACTERISTIC.equals(uuid))
+            return this;
+
         BluetoothGattCharacteristic characteristic = characteristics.get(uuid);
 
         if(characteristic == null) return this;
@@ -74,6 +79,9 @@ public class PlutoconDKEditor {
     }
 
     public PlutoconDKEditor setProperty(ParcelUuid uuid, byte[] value){
+        if(DKUUID.TX_LEVEL_CHARACTERISTIC.equals(uuid))
+            return this;
+
         BluetoothGattCharacteristic characteristic = characteristics.get(uuid);
 
         if(characteristic == null) return this;

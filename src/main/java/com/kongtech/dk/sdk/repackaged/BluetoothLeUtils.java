@@ -23,7 +23,6 @@ import java.util.Set;
 /**
  * Helper class for Bluetooth LE utils.
  *
- * @hide
  */
 public class BluetoothLeUtils {
     /**
